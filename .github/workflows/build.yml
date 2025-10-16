@@ -1,28 +1,32 @@
 name: Test Secrets
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   check-secrets:
-    runs-on: windows-latest  # or ubuntu-latest
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    runs-on: windows-latest
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Check SONAR_HOST_URL
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          if [ -z "$SONAR_HOST_URL" ]; then
-            echo "SONAR_HOST_URL is EMPTY"
-          else
-            echo "SONAR_HOST_URL is set"
-          fi
+          if (-not $env:SONAR_HOST_URL) {
+            Write-Host "❌ SONAR_HOST_URL is EMPTY"
+          } else {
+            Write-Host "✅ SONAR_HOST_URL is set to: $env:SONAR_HOST_URL"
+          }
 
       - name: Check SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          if [ -z "$SONAR_TOKEN" ]; then
-            echo "SONAR_TOKEN is EMPTY"
-          else
-            echo "SONAR_TOKEN is set (hidden for security)"
-          fi
+          if (-not $env:SONAR_TOKEN) {
+            Write-Host "❌ SONAR_TOKEN is EMPTY"
+          } else {
+            Write-Host "✅ SONAR_TOKEN is set (value hidden for security)"
+          }
